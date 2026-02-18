@@ -66,10 +66,6 @@ namespace p3rpc.femc
 		private AssetRedirector _assetRedirector;
 		private readonly ICostumeApi _costumeApi;
 		private ArmorData _armorData;
-
-
-
-
         private string modName { get; set; }
 
 		public Mod(ModContext context)
@@ -96,6 +92,8 @@ namespace p3rpc.femc
             var toolKit = GetDependency<IToolkit>("UE Toolkit (IToolkit");
             var unrealMemory = GetDependency<IUnrealMemory>("UE Toolkit (IUnrealMemory)");
             var unrealNames = GetDependency<IUnrealNames>("UE Toolkit (IUnrealNames)");
+            var unrealClasses = GetDependency<IUnrealClasses>("UE Toolkit (IUnrealClasses)");
+            var unrealObjects = GetDependency<IUnrealObjects>("UE Toolkit (IUnrealObjects)");
             _costumeApi = GetDependency<ICostumeApi>("Costume Framework");
 
 			var ryo = GetDependency<IRyoApi>("Ryo Framework");
@@ -119,7 +117,9 @@ namespace p3rpc.femc
                 }
             }
 
-            _context = new(baseAddress, _configuration, _logger, startupScanner, _hooks, _modLoader.GetDirectoryForModId(_modConfig.ModId), utils, memory, sharedScans, classMethods, objectMethods, bIsAigis);
+            _context = new(
+	            baseAddress, _configuration, _logger, startupScanner, _hooks, _modLoader.GetDirectoryForModId(_modConfig.ModId), 
+	            utils, memory, sharedScans, classMethods, objectMethods, bIsAigis, unrealMemory, unrealClasses, unrealObjects);
 			_modRuntime = new(_context);
 			_musicManager = new MusicManager(_modLoader, _modConfig, _configuration, ryo, _logger, _context);
             _armorData = new(_modLoader, _modConfig, _configuration, uObjects, toolKit, _context);
@@ -282,6 +282,7 @@ namespace p3rpc.femc
 			if (_configuration.EnableWipe) _modRuntime.AddModule<Wipe>();
 			if (_configuration.EnableItemList) _modRuntime.AddModule<ItemList>();
 			if (_configuration.EnableCommunity) _modRuntime.AddModule<Cmmu>();
+			_modRuntime.AddModule<Bitflags>();
 			_modRuntime.RegisterModules();
 		}
 
